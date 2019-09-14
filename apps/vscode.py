@@ -86,11 +86,10 @@ context.keymap(
         "debug tab": Key("shift-cmd-d"),
         "source control tab": Key("shift-ctrl-g"),
         "extensions tab": Key("shift-cmd-x"),
+        "(toggle | show | hide) panel": Key("cmd-j"),
 
         # tabbing
-        "stiffy": Key("cmd-alt-left"),
         "next tab": Key("cmd-alt-right"),
-        "stippy": Key("cmd-alt-right"),
         "last tab": Key("cmd-alt-left"),
         "new tab": Key("cmd-n"),
         "jump" + optional_numerals: jump_tabs,
@@ -168,7 +167,6 @@ context.keymap(
         "clone": Key("alt-shift-down"),
 
         # Window Management
-        "[toggle] full screen": Key("f11"),
         "[toggle] Zen mode": [Key("cmd-k"), Key("z")],
 
         # Debugging

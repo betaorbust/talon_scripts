@@ -2,10 +2,11 @@ import collections
 import json
 import os
 import string
+import time
 from time import sleep
 
 from talon import clip, resource
-from talon.voice import Context, Str, press
+from talon.voice import Context, Str, Key, press
 
 from ..config import vocab
 from ..config.bundle_groups import FILETYPE_SENSITIVE_BUNDLES, TERMINAL_BUNDLES
@@ -382,3 +383,16 @@ def normalise_keys(dict):
         for cmd in k.strip("() ").split("|"):
             normalised_dict[cmd.strip()] = v
     return normalised_dict
+
+
+# A version of Key that allows us to wait a while before pressing the key.
+def PressWait(key_value, wait_time_seconds):
+    def press_wait(m):
+        time.sleep(wait_time_seconds)
+        press(key_value)
+    return press_wait
+
+
+def CursorText(s):
+    left, right = s.split("{.}", 1)
+    return [left + right, Key(" ".join(["left"] * len(right)))]

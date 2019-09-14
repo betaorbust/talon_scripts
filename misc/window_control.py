@@ -33,7 +33,7 @@ ctx.keymap(
         "[switch] space (left | previous | preev)": Key("ctrl-left"),
         "(minimise window | curtail)": Key("cmd-m"),
         "([show] (app | application) windows | expozay)": lambda m: macos.dock_notify("com.apple.expose.front.awake"),
-        "(quit app | quite application | close app | close application)": Key("cmd-q"),
+        "(quit app | quit program | close app | close program)": Key("cmd-q"),
         # application navigation
         "[open] launcher": Key("cmd-space"),
         "([switch] app (next | right) | swick)": Key("cmd-tab"),
