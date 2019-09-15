@@ -16,6 +16,8 @@ def remove_spaces_around_dashes(m):
     s = " ".join(words)
     s = s.replace(" – ", "-")
     insert(s)
+
+
 context.keymap(
     {
         # All reserved words that we actually use
@@ -40,7 +42,6 @@ context.keymap(
         "false": "false",
         "finally": ["finally{}", Key("left")],
         "for loop": VSCodeTabComplete(["for"]),
-        "function": "function",
         "goto": "goto",
         "iffy": VSCodeTabComplete(["if"]),
         "import": "import",
