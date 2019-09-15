@@ -1,7 +1,7 @@
 from talon.voice import Context, press, Key
 import string
-from ..utils import normalise_keys, insert
-from ..config import config
+from .utils import normalise_keys, insert
+from ..config.config import config
 
 # Alphabet words are configurable in your config.json.  default is talon_alphabet_words:
 talon_alphabet_words = "air bat cap drum each fine gust harp sit jury crunch look made near odd pit quench red sun trap urge vest whale plex yank zip"
