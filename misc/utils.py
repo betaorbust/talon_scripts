@@ -396,3 +396,9 @@ def PressWait(key_value, wait_time_seconds):
 def CursorText(s):
     left, right = s.split("{.}", 1)
     return [left + right, Key(" ".join(["left"] * len(right)))]
+
+
+def KeyComplete(key_value, wait):
+    def _completedFunction(actions):
+        return actions + [PressWait(key_value, wait)]
+    return _completedFunction

@@ -1,7 +1,14 @@
 from talon.voice import Context, Key, press, Str
-from ..misc.utils import parse_words_as_integer, repeat_function, optional_numerals, text
+from ..misc.utils import parse_words_as_integer, repeat_function, optional_numerals, text, KeyComplete
+
 
 context = Context("VSCode", bundle="com.microsoft.VSCode")
+
+POPUP_WAIT_S = .75
+
+
+def VSCodeTabComplete(actions):
+    return KeyComplete('tab', POPUP_WAIT_S)(actions)
 
 
 def go_to_line(line_number):
@@ -149,10 +156,7 @@ context.keymap(
         "format selection": [Key("cmd-k"), Key("cmd-f")],
 
         # Editing
-        "select line"
-        + optional_numerals
-        + "(until|through)"
-        + optional_numerals: select_lines_function,
+        "select lines" + optional_numerals + "(until|through)" + optional_numerals: select_lines_function,
         # "copy (lines|line) <x> [through <y>]": R(Function(copy_lines), rdescript="VSC: Copy lines"),
         # "cut (lines|line) <x> [through <y>]": R(Function(cut_lines), rdescript="VSC: Cut lines"),
         # "delete (lines|line) <x> [through <y>]": R(Function(delete_lines), rdescript="VSC: Delete Lines"),
