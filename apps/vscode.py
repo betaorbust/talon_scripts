@@ -1,5 +1,5 @@
 from talon.voice import Context, Key, press, Str
-from ..misc.utils import parse_words_as_integer, repeat_function, optional_numerals, text, KeyComplete
+from ..misc.utils import parse_words_as_integer, repeat_function, optional_numerals, numerals, text, KeyComplete
 
 
 context = Context("VSCode", bundle="com.microsoft.VSCode")
@@ -31,12 +31,12 @@ def jump_to_line(m):
 
 
 def jump_tabs(m, goBackwards=False):
-    line_number = parse_words_as_integer(m._words[1:])
+    number_of_tabs = parse_words_as_integer(m._words[1:])
 
-    if line_number is None:
+    if number_of_tabs is None:
         return
 
-    for i in range(0, line_number):
+    for i in range(0, number_of_tabs):
         if(goBackwards):
             press("cmd-alt-left")
         else:
@@ -99,8 +99,8 @@ context.keymap(
         "next tab": Key("cmd-alt-right"),
         "last tab": Key("cmd-alt-left"),
         "new tab": Key("cmd-n"),
-        "jump" + optional_numerals: jump_tabs,
-        # TODO: jump back tabs
+        "jump" + numerals: jump_tabs,
+        "jump back" + numerals: lambda m: jump_tabs(m, goBackwards=True),
 
         # editing
         "bracken": [Key("cmd-shift-ctrl-right")],
@@ -132,7 +132,7 @@ context.keymap(
         "Close tab": Key("cmd-w"),
 
         # moving around a file
-        "jump to line" + optional_numerals: jump_to_line,
+        "jump to line" + numerals: jump_to_line,
         "Go to line": Key("ctrl-g"),
         "move line up" + optional_numerals: repeat_function(2, "alt-up"),
         "move line down" + optional_numerals: repeat_function(2, "alt-down"),
@@ -164,8 +164,8 @@ context.keymap(
         # "shrink selection [<n> [(times|time)]]": R(Key("sa-left"), rdescript="VSC: shrink selection") * Repeat(extra="n"),
         # "select line": Key("cmd-l"),
         "delete line": Key("shift-cmd-k"),
-        "expand selection": Key("shift-alt-right"),
-        "shrink selection": Key("shift-alt-left"),
+        "expand selection": Key("ctrl-shift-cmd-right"),
+        "shrink selection": Key("ctrl-shift-cmd-left"),
 
         # Clipboard
         "clone": Key("alt-shift-down"),
