@@ -28,10 +28,11 @@ formatters = normalise_keys(
     {
         "tree": (True, lambda i, word, _: word[0:3] if i == 0 else ""),
         "quad": (True, lambda i, word, _: word[0:4] if i == 0 else ""),
-        "(cram | camel)": (
+        "camel": (
             True,
             lambda i, word, _: word if i == 0 else word.capitalize(),
         ),
+        "pascal": (True, lambda i, word, _: word.capitalize()),
         "pathway": (True, lambda i, word, _: word if i == 0 else "/" + word),
         "dotsway": (True, lambda i, word, _: word if i == 0 else "." + word),
         "yellsmash": (True, lambda i, word, _: word.upper()),
@@ -49,7 +50,6 @@ formatters = normalise_keys(
             True,
             lambda i, word, _: "@" + word if i == 0 else word.capitalize(),
         ),
-        "(criff | criffed)": (True, lambda i, word, _: word.capitalize()),
         "tridal": (False, lambda i, word, _: word.capitalize()),
         "snake": (True, lambda i, word, _: word if i == 0 else "_" + word),
         "dotsnik": (True, lambda i, word, _: "." + word if i == 0 else "_" + word),
@@ -62,9 +62,9 @@ formatters = normalise_keys(
 
 surrounders = normalise_keys(
     {
-        # "dubstring": (False, surround('"')),
-        # "string": (False, surround("'")),
-        # "backticks": (False, surround("`")),
+        "dubstring": (False, surround('"')),
+        "string": (False, surround("'")),
+        "backticks": (False, surround("`")),
         # "padded": (False, surround(" ")),
         # "dunder": (False, surround("__")),
         # "angles": (False, surround("<", ">")),
