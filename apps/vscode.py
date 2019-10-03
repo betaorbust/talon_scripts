@@ -77,23 +77,14 @@ def parse_line_ranges(m):
     line_number_from = int(str(parse_words_as_integer(m._words[2:divider])))
     line_number_until = int(str(parse_words_as_integer(m._words[divider + 1:])))
     number_of_lines = line_number_until - line_number_from
-    return (line_number_from, line_number_until, number_of_lines)
+    return (line_number_from, number_of_lines)
 
 
-def select_and_modify_lines(m, action):
-    line_number_start, number_of_lines = parse_line_ranges(m)
-    if action is not None:
-        wait_press(action, .1)
-
-
-def select_lines_handler(m):
-    select_and_modify_lines(m)
-
-
-def copy_lines_handler(m):
+def select_and_modify_lines(m, action=None):
     line_number_start, number_of_lines = parse_line_ranges(m)
     select_lines(line_number_start, number_of_lines)
-    wait_press('cmd-c')
+    if action is not None:
+        wait_press(action, .1)
 
 
 def find_word_in_files(m):
