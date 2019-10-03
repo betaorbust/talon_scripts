@@ -385,12 +385,21 @@ def normalise_keys(dict):
     return normalised_dict
 
 
+# Press a key and then wait
+def press_wait(key_value, wait_time_seconds):
+    press(key_value)
+    time.sleep(wait_time_seconds)
+
+
+# Wait and then press a key
+def wait_press(key_value, wait_time_seconds):
+    time.sleep(wait_time_seconds)
+    press(key_value)
+
+
 # A version of Key that allows us to wait a while before pressing the key.
-def PressWait(key_value, wait_time_seconds):
-    def press_wait(m):
-        time.sleep(wait_time_seconds)
-        press(key_value)
-    return press_wait
+def WaitKey(key_value, wait_time_seconds):
+    return lambda m: wait_press(key_value, wait_time_seconds)
 
 
 def CursorText(s):
@@ -400,5 +409,5 @@ def CursorText(s):
 
 def KeyComplete(key_value, wait):
     def _completedFunction(actions):
-        return actions + [PressWait(key_value, wait)]
+        return actions + [WaitKey(key_value, wait)]
     return _completedFunction

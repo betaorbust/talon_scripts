@@ -1,6 +1,6 @@
 from talon.voice import Context, press, Key
 import string
-from .utils import normalise_keys, insert
+from .utils import normalise_keys, insert, optional_numerals
 from ..config.config import config
 
 # Alphabet words are configurable in your config.json.  default is talon_alphabet_words:
@@ -101,6 +101,9 @@ def get_keys(m):
     return []
 
 
+# def get_repeats(m):
+
+
 def uppercase_letters(m):
     insert("".join(get_keys(m)).upper())
 
@@ -108,6 +111,7 @@ def uppercase_letters(m):
 def press_keys(m):
     mods = get_modifiers(m)
     keys = get_keys(m)
+    # repeats = get_repeats(m)
 
     if mods == ["shift"] and all(key in alphabet.values() for key in keys):
         return uppercase_letters(m)
@@ -126,7 +130,7 @@ ctx.keymap(
         "{basic_keys.modifiers}* {basic_keys.alphabet}+": press_keys,
         "{basic_keys.modifiers}* {basic_keys.digits}+": press_keys,
         "{basic_keys.modifiers}* {basic_keys.keys}+": press_keys,
-        "(go | {basic_keys.modifiers}+) {basic_keys.arrows}+": press_keys,
+        "(go | {basic_keys.modifiers}+) {basic_keys.arrows}+" + optional_numerals: press_keys,
         "number {basic_keys.digits}+ [over]": press_keys,
         "tarsh": Key("shift-tab"),
         "tarpy": [Key("tab"), Key("tab")],
