@@ -1,7 +1,7 @@
 import re
 from talon.voice import Context, Key, press, Str
 import talon.clip as clip
-from ..misc.utils import parse_words_as_integer, repeat_function, optional_numerals, numerals, text, KeyComplete, press_wait
+from ..misc.utils import parse_words_as_integer, repeat_function, optional_numerals, numerals, text, KeyComplete, press_wait, wait_press
 
 
 context = Context("VSCode", bundle="com.microsoft.VSCode")
@@ -14,16 +14,14 @@ def VSCodeTabComplete(actions):
 
 
 def go_to_line(line_number):
-    press("cmd-g")
-    Str(str(line_number))(None)
-    press("enter")
+    press_wait("ctrl-g", 0.1)
+    if(line_number is not None):
+        Str(str(line_number))(None)
+        wait_press("enter", 0.1)
 
 
 def jump_to_line(m):
-    line_number = parse_words_as_integer(m._words[1:])
-
-    if line_number is None:
-        return
+    line_number = parse_words_as_integer(m._words[3:])
 
     # Zeroth line should go to first line
     if line_number == 0:
@@ -59,7 +57,18 @@ def jump_to_previous_word_instance(m):
     jump_to_next_word_instance(m, is_forward=False)
 
 
-def select_lines_function(m):
+def select_lines(start_line, number_of_lines):
+    press("ctrl-g")
+    Str(str(start_line))(None)
+    press("enter")
+    for i in range(0, number_of_lines + 1):
+        press("shift-down")
+
+    # We're now on the line below where we want. Go back one to end up in the right spot
+    press("shift-left")
+
+
+def parse_line_ranges(m):
     divider = 0
     for word in m._words:
         if str(word) == "through":
@@ -68,15 +77,23 @@ def select_lines_function(m):
     line_number_from = int(str(parse_words_as_integer(m._words[2:divider])))
     line_number_until = int(str(parse_words_as_integer(m._words[divider + 1:])))
     number_of_lines = line_number_until - line_number_from
+    return (line_number_from, line_number_until, number_of_lines)
 
-    press("ctrl-g")
-    Str(str(line_number_from))(None)
-    press("enter")
-    for i in range(0, number_of_lines + 1):
-        press("shift-down")
 
-    # We're now on the line below where we want. Go back one to end up in the right spot
-    press("shift-left")
+def select_and_modify_lines(m, action):
+    line_number_start, number_of_lines = parse_line_ranges(m)
+    if action is not None:
+        wait_press(action, .1)
+
+
+def select_lines_handler(m):
+    select_and_modify_lines(m)
+
+
+def copy_lines_handler(m):
+    line_number_start, number_of_lines = parse_line_ranges(m)
+    select_lines(line_number_start, number_of_lines)
+    wait_press('cmd-c')
 
 
 def find_word_in_files(m):
@@ -90,7 +107,6 @@ def jump_in_or_out(is_jump_out=False):
     boundary_match_in = r'''['"`\(\{\[<]'''
     boundary_match_out = r'''['"`\)\}\]>]'''
     boundary_match = boundary_match_out if is_jump_out else boundary_match_in
-    print(boundary_match)
     old_clip_value = clip.get()
     press("cmd-shift-down")
     press_wait("cmd-c", .05)
@@ -99,10 +115,7 @@ def jump_in_or_out(is_jump_out=False):
     clip.set(old_clip_value)
     first_boundary_match = re.search(boundary_match, remaining_text)
     if first_boundary_match is None:
-        print('Found nothing!')
         return
-    print('FOUND SOMETHING!!!')
-    print(first_boundary_match.start())
     # cursor over to the found key text
     for i in range(0, first_boundary_match.start()):
         press_wait("right", .001)
@@ -157,8 +170,7 @@ context.keymap(
         "Close tab": Key("cmd-w"),
 
         # moving around a file
-        "jump to line" + numerals: jump_to_line,
-        "Go to line": Key("ctrl-g"),
+        "(go | jump) to line" + optional_numerals: jump_to_line,
         "move line up" + optional_numerals: repeat_function(2, "alt-up"),
         "move line down" + optional_numerals: repeat_function(2, "alt-down"),
         "jump in": lambda m: jump_in_or_out(False),
@@ -170,9 +182,8 @@ context.keymap(
         "Go to ( bottom | last line)": Key("cmd-down"),
         "ee-ol": Key("end"),
         "beol": Key("home"),
-        # TODO: these should take a number argument
-        "Go back" + optional_numerals: repeat_function(2, "alt-left"),
-        "Go forward" + optional_numerals: repeat_function(2, "alt-right"),
+        "[Go] back" + optional_numerals: repeat_function(0, "alt-left"),
+        "[Go] forward" + optional_numerals: repeat_function(0, "alt-right"),
 
         # Formatting
         "indent": Key("tab"),
@@ -183,19 +194,18 @@ context.keymap(
         "format selection": [Key("cmd-k"), Key("cmd-f")],
 
         # Editing
-        "select lines" + optional_numerals + "(until|through)" + optional_numerals: select_lines_function,
-        # "copy (lines|line) <x> [through <y>]": R(Function(copy_lines), rdescript="VSC: Copy lines"),
-        # "cut (lines|line) <x> [through <y>]": R(Function(cut_lines), rdescript="VSC: Cut lines"),
-        # "delete (lines|line) <x> [through <y>]": R(Function(delete_lines), rdescript="VSC: Delete Lines"),
+        "select lines" + optional_numerals + "(until|through)" + optional_numerals: lambda m: select_and_modify_lines(m),
+        "select line": Key("cmd-l"),
+        "delete line": Key("shift-cmd-k"),
+        "delete lines" + optional_numerals + "(until|through)" + optional_numerals: lambda m: select_and_modify_lines(m, 'delete'),
+        "copy lines" + optional_numerals + "(until|through)" + optional_numerals: lambda m: select_and_modify_lines(m, 'cmd-c'),
+        "cut lines" + optional_numerals + "(until|through)" + optional_numerals: lambda m: select_and_modify_lines(m, 'cmd-x'),
+
         # "expand selection [<n> [(times|time)]]": R(Key("sa-right"), rdescript="VSC: expand selection") * Repeat(extra="n"),
         # "shrink selection [<n> [(times|time)]]": R(Key("sa-left"), rdescript="VSC: shrink selection") * Repeat(extra="n"),
-        # "select line": Key("cmd-l"),
-        "delete line": Key("shift-cmd-k"),
         "expand selection": Key("ctrl-shift-cmd-right"),
         "shrink selection": Key("ctrl-shift-cmd-left"),
-        # lambda m: select_n_words(m, "previous"),
         "select previous" + numerals + "words": repeat_function(2, "alt-shift-left"),
-        # lambda m: select_n_words(m, "next"),
         "select next" + numerals + "words": repeat_function(2, "alt-shift-right"),
 
         # Clipboard
